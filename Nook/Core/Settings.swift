@@ -1,0 +1,98 @@
+//
+//  Settings.swift
+//  Nook
+//
+//  App settings manager using UserDefaults
+//
+
+import Foundation
+
+/// Available notification sounds
+enum NotificationSound: String, CaseIterable {
+    case none = "None"
+    case pop = "Pop"
+    case ping = "Ping"
+    case tink = "Tink"
+    case glass = "Glass"
+    case blow = "Blow"
+    case bottle = "Bottle"
+    case frog = "Frog"
+    case funk = "Funk"
+    case hero = "Hero"
+    case morse = "Morse"
+    case purr = "Purr"
+    case sosumi = "Sosumi"
+    case submarine = "Submarine"
+    case basso = "Basso"
+
+    /// The system sound name to use with NSSound, or nil for no sound
+    var soundName: String? {
+        self == .none ? nil : rawValue
+    }
+}
+
+enum AppSettings {
+    private nonisolated(unsafe) static let defaults = UserDefaults.standard
+    nonisolated static let artworkAdaptiveBackgroundEnabledKey = "artworkAdaptiveBackgroundEnabled"
+
+    // MARK: - Keys
+
+    private enum Keys {
+        nonisolated static let notificationSound = "notificationSound"
+        nonisolated static let claudeDirectoryName = "claudeDirectoryName"
+        nonisolated static let artworkAdaptiveBackgroundEnabled = AppSettings.artworkAdaptiveBackgroundEnabledKey
+    }
+
+    nonisolated static func registerDefaults() {
+        defaults.register(defaults: [
+            Keys.artworkAdaptiveBackgroundEnabled: true
+        ])
+    }
+
+    // MARK: - Notification Sound
+
+    /// The sound to play when Claude finishes and is ready for input
+    nonisolated static var notificationSound: NotificationSound {
+        get {
+            guard let rawValue = defaults.string(forKey: Keys.notificationSound),
+                  let sound = NotificationSound(rawValue: rawValue) else {
+                return .pop // Default to Pop
+            }
+            return sound
+        }
+        set {
+            defaults.set(newValue.rawValue, forKey: Keys.notificationSound)
+        }
+    }
+
+    // MARK: - Claude Directory
+
+    /// The name of the Claude config directory under the user's home folder.
+    /// Defaults to ".claude" (standard Claude Code installation).
+    /// Change to ".claude-internal" (or similar) for enterprise/custom distributions.
+    nonisolated static var claudeDirectoryName: String {
+        get {
+            let value = defaults.string(forKey: Keys.claudeDirectoryName) ?? ""
+            return value.isEmpty ? ".claude" : value
+        }
+        set {
+            defaults.set(newValue.trimmingCharacters(in: .whitespaces), forKey: Keys.claudeDirectoryName)
+        }
+    }
+
+    // MARK: - Artwork Adaptive Background
+
+    /// Controls whether the notch artwork background adapts to the current artwork.
+    /// Defaults to enabled.
+    nonisolated static var artworkAdaptiveBackgroundEnabled: Bool {
+        get {
+            if defaults.object(forKey: Keys.artworkAdaptiveBackgroundEnabled) == nil {
+                return true
+            }
+            return defaults.bool(forKey: Keys.artworkAdaptiveBackgroundEnabled)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.artworkAdaptiveBackgroundEnabled)
+        }
+    }
+}
