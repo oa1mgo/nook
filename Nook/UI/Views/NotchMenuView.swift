@@ -120,7 +120,7 @@ struct NotchMenuView: View {
                     label: "Star on GitHub",
                     primaryTextColor: primaryTextColor
                 ) {
-                    if let url = URL(string: "https://github.com/oa1mgo/nook-oaimgo") {
+                    if let url = URL(string: "https://github.com/oa1mgo/nook") {
                         NSWorkspace.shared.open(url)
                     }
                 }
